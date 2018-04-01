@@ -151,7 +151,6 @@ class RateBeer(object):
         #         brewer.name = row.a.string
         #         brewer.location = row('td')[1].text.strip()
         #         output['breweries'].append(brewer)
-        print(output)
         return output
 
     def get_beer(self, url, fetch=None):
