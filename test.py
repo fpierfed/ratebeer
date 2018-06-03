@@ -26,11 +26,10 @@ class TestBeer(unittest.TestCase):
         self.assertTrue(results['overall_rating'] <= 100)
         self.assertTrue(results['style_rating'] <= 100)
         self.assertTrue(results['num_ratings'] > 0)
-        self.assertTrue(results['mean_rating'] is None)
-        self.assertTrue(self.is_float(results['weighted_avg']))
-        self.assertTrue(results['weighted_avg'] <= 5.0)
+        self.assertTrue(results['mean_rating'] > 0)
+        self.assertTrue(results['weighted_avg'] is None)
         self.assertTrue(results['retired'] == False)
-        self.assertTrue(results['description'] == u'New Belgium’s love for beer, bikes and benefits is best described by being at Tour de Fat. Our love for Cascade and Amarillo hops is best tasted in our Tour de Fall Pale Ale. We’re cruising both across the country during our favorite time of year. Hop on and find Tour de Fall Pale Ale in fall 2014.')
+        self.assertTrue(len(results['description']) > 0)
 
     def test_beer_404(self):
         ''' Checks to make sure that we appropriately raise a page not found '''
@@ -46,13 +45,13 @@ class TestBeer(unittest.TestCase):
         ''' Handling beers from closed contract brewers '''
         results = RateBeer().beer('/beer/crew-republic-x-11-wet-hop/298026/')
         self.assertTrue(results['brewery'].url == u'/brewers/crew-republic-brewery/13816/')
-        self.assertTrue(results['brewed_at'].url == u'/brewers/hohenthanner-schlossbrauerei/5557/')
+        self.assertTrue(results['brewed_at'] == None)
 
     def test_beer_contract_brewed(self):
         ''' Handling contract brewed beers '''
         results = RateBeer().beer('/beer/benediktiner-weissbier/157144/')
         self.assertTrue(results['brewery'].url == u'/brewers/klosterbrauerei-ettal/1943/')
-        self.assertTrue(results['brewed_at'].url == u'/brewers/licher-privatbrauerei-bitburger/1677/')
+        self.assertTrue(results['brewed_at'] == None)
 
     def test_beer_get_reviews(self):
         ''' Check to make multi-page review searches work properly '''
@@ -76,8 +75,7 @@ class TestBeer(unittest.TestCase):
         self.assertTrue(results['style_rating'] is None)
         self.assertTrue(results['num_ratings'] > 0)
         self.assertTrue(results['mean_rating'] > 0)
-        self.assertTrue(self.is_float(results['weighted_avg']))
-        self.assertTrue(results['weighted_avg'] > 0)
+        self.assertTrue(results['weighted_avg'] is None)
         self.assertTrue(results['retired'] == False)
 
     def test_beer_no_ratings(self):
@@ -88,7 +86,7 @@ class TestBeer(unittest.TestCase):
         self.assertTrue(results['abv'] == 11)
         self.assertTrue(results['overall_rating'] is None)
         self.assertTrue(results['style_rating'] is None)
-        self.assertTrue(results['num_ratings'] == 0)
+        self.assertTrue(results['num_ratings'] is None)
         self.assertTrue(results['mean_rating'] is None)
         self.assertTrue(results['weighted_avg'] is None)
         self.assertTrue(results['retired'] == False)
@@ -98,7 +96,7 @@ class TestBeer(unittest.TestCase):
         self.assertIsNotNone(results)
         self.assertTrue(results['name'] == u'Steðji Októberbjór')
         self.assertTrue(results['brewery'].name == u'Brugghús Steðja')
-        self.assertTrue(results['brewery'].url == u'/brewers/brugghus-steoja/15310/')
+        self.assertTrue(results['brewery'].url == u'/brewers/brugghús-steðja/15310/')
 
     def test_beer_retired_beer(self):
         ''' Attributes for retired beers display properly '''

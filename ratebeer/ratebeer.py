@@ -113,7 +113,12 @@ class RateBeer(object):
         )
         output = {"breweries": [], "beers": []}
 
-        for result in json.loads(request.text)['data']['searchResultsArr']['items']:
+        try:
+            search_results = json.loads(request.text)
+        except:
+            raise rb_exceptions.JSONParseException(query)
+
+        for result in search_results['data']['searchResultsArr']['items']:
             if 'beer' in result:
                 beer_data = result['beer']
                 # double check this...

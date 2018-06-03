@@ -106,6 +106,13 @@ class Beer(object):
         """Provide a nicely formatted representation"""
         return self.name
 
+    def _format(self, value):
+        """Sets what is now a blank string or int to None, otherwise returns value"""
+        if value == "" or value == 0:
+            return None
+        else:
+            return value
+
     def _populate(self):
         if not self.id:
             self.id = self.url.split('/')[-2]
@@ -136,8 +143,11 @@ class Beer(object):
            ,headers={"content-type": "application/json"}
         )
 
-        results = json.loads(request.text)
-        print(results)
+        try:
+            results = json.loads(request.text)
+        except:
+            raise rb_exceptions.JSONParseException(self.id)
+
         beer_data = results[0]['data']['info']
 
         if beer_data == None:
@@ -151,32 +161,26 @@ class Beer(object):
         tag_data = results[2]['data']['tagDisplayArr']['items']
 
         self.name = beer_data['name']
-        self.brewery = Brewery(beer_data['brewer']['id'])
+        self.brewery = Brewery('/brewers/{0}/{1}/'.format(re.sub('[/ ]','-',beer_data['brewer']['name'].lower()),beer_data['brewer']['id']))
         self.brewery.name = beer_data['brewer']['name']
         self.brewed_at = None #no longer supported
-        self.overall_rating = beer_data['overallScore']
-        self.style_rating = beer_data['styleScore']
+        self.overall_rating = self._format(beer_data['overallScore'])
+        self.style_rating = self._format(beer_data['styleScore'])
         self.style = beer_data['style']['name']
         self.style_url = "/beerstyles/{0}/{1}/".format(re.sub('/','-',self.style.lower()), beer_data['style']['id'])
         self.img_url = "https://res.cloudinary.com/ratebeer/image/upload/w_152,h_309,c_pad,d_beer_img_default.png,f_auto/beer_{0}".format(self.id)
-        self.num_ratings = beer_data['ratingCount']
-        self.mean_rating = beer_data['averageRating']
+        self.num_ratings = self._format(beer_data['ratingCount'])
+        self.mean_rating = self._format(beer_data['averageRating'])
         self.weighted_avg = None # does not appear to exist anymore
         if(beer_data['seasonal'] != 'UNKNOWN'):
             self.seasonal = beer_data['seasonal']
         else:
             self.seasonal = None
-        self.ibu = beer_data['ibu']
-        self.calories = beer_data['calories']
-        self.abv = beer_data['abv']
+        self.ibu = self._format(beer_data['ibu'])
+        self.calories = self._format(beer_data['calories'])
+        self.abv = self._format(beer_data['abv'])
         self.retired = beer_data['isRetired']
-        # Description
-        description = beer_data['description']
-        if hasattr(description,'text'):
-            # strip ads and replace non-ASCII apostrophe with ASCII apostrophe
-            [s.extract() for s in description('small')]
-            self.description = ' '.join([s for s in description.strings]).strip()
-            self.description = re.sub(r'\x92','\'',self.description)
+        self.description = re.sub(r'\x92', '\'', beer_data['description'])
         if tag_data:
             self.tags = [t['urlName'] for t in tag_data]
         else:
