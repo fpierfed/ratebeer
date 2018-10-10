@@ -188,7 +188,11 @@ class Beer(object):
         self.calories = self._format(beer_data['calories'])
         self.abv = self._format(beer_data['abv'])
         self.retired = beer_data['isRetired']
-        self.description = re.sub(r'\x92', '\'', beer_data['description'])
+
+        if beer_data['description']:
+            self.description = re.sub(r'\x92', '\'', beer_data['description'])
+        else:
+            self.description = None
         if tag_data:
             self.tags = [t['urlName'] for t in tag_data]
         else:
