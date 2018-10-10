@@ -136,7 +136,7 @@ class Beer(object):
                   "query":"query tagDisplay($beerId: ID!, $first: Int) { \n tagDisplayArr: beerTags(beerId: $beerId, first: $first) { \n items { \n id \n urlName: plain \n __typename \n } \n __typename \n } \n} \n"
                  }
                 ]
-        
+
         request = requests.post(
             "https://beta.ratebeer.com/v1/api/graphql/"
            ,data=json.dumps(data)
@@ -156,7 +156,15 @@ class Beer(object):
         alias_data = results[1]['data']['beerByAlias']
 
         if alias_data != None:
-            raise rb_exceptions.AliasedBeer(self.id, alias_data['id'])
+            # Resolve the alias: we have all the information. We decide to just
+            # return the alias and not the original beer from the query.
+            self.name = alias_data['name']
+            self.id = alias_data['id']
+            self.url = '/beer/{0}/{1}/'.format(
+                self.name.replace(' ', '-').lower(),
+                self.id
+            )
+            return self._populate()
 
         tag_data = results[2]['data']['tagDisplayArr']['items']
 
@@ -257,7 +265,7 @@ class Review(object):
         review_title_attr = review_soup.find_all('div')[1].get('title')
 
         # some ratings may now just contain the x/5.0 rating, with no sub-ratings
-        if '<small>' in review_title_attr: 
+        if '<small>' in review_title_attr:
             raw_ratings = re.search(r'<small>(.+?)</small>', review_title_attr).group(1).split('<br />')
             # strip html and everything else
             for rating_text in raw_ratings:
