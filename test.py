@@ -20,7 +20,7 @@ class TestBeer(unittest.TestCase):
         results = RateBeer().beer('/beer/new-belgium-tour-de-fall/279122/')
         self.assertIsNotNone(results)
         self.assertTrue(results['name'] == u'New Belgium Tour de Fall')
-        self.assertTrue(results['style'] == u'American Pale Ale')
+        self.assertTrue(results['style'] == u'Pale Ale - American')
         self.assertTrue(results['ibu'] == 38)
         self.assertTrue(results['brewery'].url == u'/brewers/new-belgium-brewing-company/77/')
         self.assertTrue(results['overall_rating'] <= 100)
@@ -82,7 +82,7 @@ class TestBeer(unittest.TestCase):
         results = RateBeer().beer('/beer/deschutes-abyssident/194792/')
         self.assertIsNotNone(results)
         self.assertTrue(results['name'] == u'Deschutes Abyssident')
-        self.assertTrue(results['style'] == u'Sour/Wild Ale')
+        self.assertTrue(results['style'] == u'Sour / Wild Ale')
         self.assertTrue(results['abv'] == 11)
         self.assertTrue(results['overall_rating'] is None)
         self.assertTrue(results['style_rating'] is None)
@@ -97,6 +97,7 @@ class TestBeer(unittest.TestCase):
         self.assertTrue(results['name'] == u'Steðji Októberbjór')
         self.assertTrue(results['brewery'].name == u'Brugghús Steðja')
         self.assertTrue(results['brewery'].url == u'/brewers/brugghús-steðja/15310/')
+
 
     def test_beer_retired_beer(self):
         ''' Attributes for retired beers display properly '''
